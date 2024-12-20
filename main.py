@@ -2,11 +2,22 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import sys
 from upgrades import UpgradeModel
+from errorModels import *
 
-    
 def close_window():
-    root.quit()
-    sys.exit()
+    try:
+        save_data(*gather_data())
+    except:
+        with open("error.txt", "a") as file:
+            file.write("----------\n")
+            file.write("Save Data failed to gather\n")
+    else:
+        root.quit()
+        sys.exit()
+    finally:
+        with open("error.txt", "a") as file:
+            file.write("Game failed to close. Check previous errors\n")
+            file.write("----------\n")
 
 def increment_counter():
     global clicker_counter
@@ -21,6 +32,25 @@ def open_settings():
 
 def on_mousewheel(event):
     canvas.yview_scroll(-1*event.delta//120, "units")
+
+def read_data_startup():
+    with open("save.txt", "r+") as file:
+        save_data = file.readlines()
+        return save_data
+
+def save_data(current_counter, current_upgrades):
+    #writes the save data into save.txt
+    with open("save.txt", "w+") as file:
+        for line in input_data:
+            file.write(line)
+
+def gather_data():
+    #will gather the data needed to save the game
+    return clicker_counter, upgrade_list
+
+#global variable to store the upgrades
+global upgrade_list
+upgrade_list = read_data_startup()
 
 #create fullscreen root without top bar
 root = tk.Tk()
@@ -103,19 +133,18 @@ canvas_frame.rowconfigure(0, weight=1)
 canvas_frame.columnconfigure(1, weight=1)
 
 #create upgrade buttons on startup
-
-upgrade_button_list = [1, 2, 3, 4, 5, 6, 6, 6 ,6 ,6]
 incremental_var = 0
-for item in upgrade_button_list:
-    button = tk.Button(canvas_frame, text=f"Upgrade {incremental_var+1}", command=increment_counter, height=5, width=105)
+for item in upgrade_list:
+    button = tk.Button(canvas_frame, text=f"Upgrade {incremental_var+1}", command=save_data, height=5, width=105)
     button.grid(row=incremental_var, column=0, sticky="news")
     incremental_var += 1
 
+#update the frame to reset the height
 canvas_frame.update()
 upgrade_canvas.configure(yscrollcommand=upgrade_scrollbar.set, scrollregion="0 0 0 %s" % canvas_frame.winfo_height())
-
 
 upgrade_canvas.grid(row=0, column=0, sticky="news")
 upgrade_scrollbar.grid(row=0, column=10, sticky="ns")
 canvas_frame.bind("<MouseWheel>", on_mousewheel)
+
 root.mainloop()

@@ -17,4 +17,6 @@ class UpgradeModel:
 
     def purchase_new_upgrade():
         amount += 1
+        clicker_counter = clicker_counter - purchase_cost
         purchase_cost = purchase_cost * 1.2
+        

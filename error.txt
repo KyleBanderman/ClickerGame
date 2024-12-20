@@ -1,0 +1,4 @@
+----------
+Save Data failed to gather
+Game failed to close. Check previous errors
+----------
